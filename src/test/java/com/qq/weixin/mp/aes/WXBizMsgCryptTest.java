@@ -150,4 +150,22 @@ public class WXBizMsgCryptTest {
 		wxcpt.verifyUrl(verifyMsgSig, timeStamp, nonce, echoStr);
 		// 只要不抛出异常就好
 	}
+	
+	@Test
+	public void test() throws AesException{ 
+	    String timetamp = "1456907505"; 
+	    String nonce = "1231152662"; 
+	    String xmlContent = "<xml>"+ 
+	    "<AppId><![CDATA[wx7613bea5e4d18127]]></AppId>"+ 
+	    "<Encrypt><![CDATA[MyFm7jGFq7JwVR6TRPYsk7vFpDrO8Q51ZBzXVNbWBRDw7dhkFEE9QNIHtV6Oe2I27SjWoZ1cTx+s4YJOJM0wR5w6wC63T6LQ44lg51jpkjYW37FmS0VOnAvPzN2JzZWBtfvBqezh1/E06fNHiQJQR4hkrpjsocDOcxjAg8UJ3GiXQukGpJE71S6frCAfgMFKLzXb63TLpCbO8DFLPDnIa9nAX3eyv+HBNw7Ckih1cwlejq3pF6kr9oFLIgNsPB3AfhKSwwgPQjBy6NUzQaJIDOwrvNA6fgWMvL7Qpf7wP6So9fsXD/ILSGrjrcFEi7jmspThO8JY2/ERfU2NXzNv7l/El5KtzPappwY7r2X2Gk35Fhap6ao1AKbJqFiuHAdKIBmUesfrtGACz2mZ03U71qL2wsDZMU92WOtwhTPqhNuGNeESmHVhVfFUJ4Obb94lymX74ronMkV+Vw9oeirLMw==]]></Encrypt>"+ 
+	    "</xml>"; // 第三方平台中 微信后台推送的加密的component_verify_ticket 
+	    String msg_signature = "a25c1dc7796b63db9472abc040f9549f258abacf"; 
+	    String token = "wxtoken"; 
+	    String appId = "wx7613bea5e4d18127"; 
+	    String encodingAesKey = "KgwVOifMrDO0tQNbzdoeWP6abSF2MIN97UuSlZDLrAI"; 
+	    WXBizMsgCrypt pc = new WXBizMsgCrypt(token, encodingAesKey, appId); 
+	    String decrptMsg = pc.decryptMsg(msg_signature, timetamp, nonce, xmlContent); 
+	    System.out.println(decrptMsg); 
+	} 
+
 }
