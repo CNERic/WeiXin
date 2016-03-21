@@ -43,11 +43,11 @@ public class Castors {
         if(fromObj == null) return defaultValue;
 
         if(toClass.isArray()) {
-            Class<?> componentType = toClass.getComponentType();
-            String[] splits = fromObj.toString().split("[, ]+");
-            T result = (T) Array.newInstance(componentType, splits.length);
+            Class<?> resultComponentType = toClass.getComponentType();
+            Object[] splits = fromClass.isArray() ? (Object[])fromObj : fromObj.toString().split("[, ]+");
+            T result = (T) Array.newInstance(resultComponentType, splits.length);
             for(int i = 0; i < splits.length; i ++)
-                Array.set(result, i, Castors.cast(componentType, splits[i]));
+                Array.set(result, i, Castors.cast(resultComponentType, splits[i]));
             return result;
         } else {
             Castor<F, T> castor = map.get(fromClass, toClass);
