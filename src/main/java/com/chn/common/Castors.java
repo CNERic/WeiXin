@@ -44,7 +44,7 @@ public class Castors {
 
         if(toClass.isArray()) {
             Class<?> resultComponentType = toClass.getComponentType();
-            Object[] splits = fromClass.isArray() ? (Object[])fromObj : fromObj.toString().split("[, ]+");
+            Object[] splits = fromClass.isArray() ? (Object[])fromObj : fromObj.toString().trim().split("[, ]+");
             T result = (T) Array.newInstance(resultComponentType, splits.length);
             for(int i = 0; i < splits.length; i ++)
                 Array.set(result, i, Castors.cast(resultComponentType, splits[i]));
@@ -54,6 +54,11 @@ public class Castors {
             if(castor != null) return castor.cast(fromObj, defaultValue);
             Castor<T, F> castor2 = map.get(toClass, fromClass);
             if(castor2 != null) return castor2.reverse(fromObj, defaultValue);
+            
+            Castor<String, F> fromToStringCastor = map.get(String.class, fromClass);
+            Castor<String, T> stringToTargetCastor = map.get(String.class, toClass);
+            if(fromToStringCastor != null && stringToTargetCastor != null) 
+                return stringToTargetCastor.cast(fromToStringCastor.reverse(fromObj, null), defaultValue);
             throw new IllegalArgumentException("不允许的类型转换 " + fromClass +"-->" + toClass);
         }
     }
