@@ -6,16 +6,10 @@ import org.apache.log4j.Logger;
 
 import com.chn.common.Exec;
 import com.chn.wx.dto.Context;
-import com.chn.wx.ioc.core.BeanFactory;
 import com.chn.wx.listener.Service;
 import com.chn.wx.listener.ThreadsMode;
 
 public class AsyncThreadMode extends ThreadsMode {
-
-    public AsyncThreadMode(BeanFactory factory) {
-        
-        super(factory);
-    }
 
     private final Logger log = Logger.getLogger(AsyncThreadMode.class);
     

@@ -1,5 +1,6 @@
 package com.chn.wx.ioc.core;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.chn.common.FieldUtils;
 import com.chn.common.InvokeUtils;
 import com.chn.common.Lang;
 import com.chn.common.MethodUtils;
 import com.chn.common.StringUtils;
+import com.chn.wx.annotation.Autowired;
 
 public class ProtoTypeFactoryBean<T> extends FactoryBean<T> {
 
@@ -20,7 +23,8 @@ public class ProtoTypeFactoryBean<T> extends FactoryBean<T> {
 
     private Class<?> type;
     private FactoryBean<?>[] args;
-    private Map<String, FactoryBean<?>> fields;
+    private Map<String, FactoryBean<?>> fields = new HashMap<String, FactoryBean<?>>();
+    private List<Field> autowired; 
     private String init;
     
     @Override
@@ -47,6 +51,9 @@ public class ProtoTypeFactoryBean<T> extends FactoryBean<T> {
                 InvokeUtils.setFieldValue(result, entry.getKey(), entry.getValue().get());
             }
         }
+        
+        for(Field each : autowired) 
+            each.set(result, context.get(each.getType().getName()).get());
         if(!StringUtils.isEmpty(init))
             InvokeUtils.invoke(result, init);
         return (T) result;
@@ -68,6 +75,8 @@ public class ProtoTypeFactoryBean<T> extends FactoryBean<T> {
             this.type = Lang.forName((String) type);
         else
             throw new IllegalArgumentException("不识别的 type：" + type);
+        
+        this.autowired = FieldUtils.traverseGetFields(this.type, Autowired.class);
     }
     
     public void setInit(Object init) {
@@ -99,7 +108,6 @@ public class ProtoTypeFactoryBean<T> extends FactoryBean<T> {
         if(!(params instanceof Map))
             throw new IllegalArgumentException("fields 不允许非 map 类型");
         Map<?, ?> paramMap = (Map<?, ?>) params;
-        fields = new HashMap<String, FactoryBean<?>>();
         Iterator<?> it = paramMap.entrySet().iterator();
         while(it.hasNext()) {
             Entry<?, ?> entry = (Entry<?, ?>) it.next();

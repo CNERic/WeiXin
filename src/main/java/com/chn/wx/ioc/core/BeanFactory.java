@@ -17,7 +17,10 @@ public class BeanFactory implements Iterable<Entry<String, FactoryBean<?>>> {
     
     public <T> FactoryBean<T> get(String name) {
         
-        return (FactoryBean<T>) map.get(name);
+        FactoryBean<T> result = (FactoryBean<T>) map.get(name);
+        if(result == null) 
+            throw new RuntimeException("未定义的 Bean：" + name);
+        return result;
     }
     
     public Iterator<Entry<String, FactoryBean<?>>> iterator() {

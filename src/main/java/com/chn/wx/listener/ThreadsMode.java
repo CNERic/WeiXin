@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import com.chn.wx.annotation.Autowired;
 import com.chn.wx.annotation.Node;
 import com.chn.wx.dto.Context;
 import com.chn.wx.ioc.core.BeanFactory;
@@ -16,13 +17,9 @@ public abstract class ThreadsMode {
     
     private Logger log = Logger.getLogger(ThreadsMode.class);
     private Map<String, FactoryBean<? extends Service>> route = new HashMap<>();
+    @Autowired
     private BeanFactory factory;
 
-    public ThreadsMode(BeanFactory factory) {
-        
-        this.factory = factory;
-    }
-    
     public String process(Context context) throws Exception {
         
         return this.routeToNext(Service.class, "root", context);

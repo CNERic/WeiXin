@@ -79,7 +79,7 @@ public abstract class ServiceTest {
         
         T instance = Mockito.mock(clazz);
         BeanFactory factory = new BeanFactory();
-        factory.regist("beanFactory", factory);
+        factory.regist(BeanFactory.class.getName(), factory);
         new AnnotationProvider<Node>("com.chn.wx.listener", Node.class).registTo(factory);
         new AnnotationProvider<Node>(App.getConfig("weixin.service.package"), Node.class).registTo(factory);
         new JsonIocProvider(new String(Lang.loadFromClassPath("/weixin.js"))).registTo(factory);
