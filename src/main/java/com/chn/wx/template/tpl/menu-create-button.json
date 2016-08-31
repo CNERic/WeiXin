@@ -1,9 +1,0 @@
-{
-  "name": "${name}", 
-  "type": "${type}", 
-  "key": "${key}", 
-  "url": "${url}", 
-  "sub_button": [
-    ${sub_button}
-  ]
-}

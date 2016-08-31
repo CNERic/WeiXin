@@ -1,7 +1,0 @@
-{
-  "touser": "${touser}", 
-  "msgtype": "text", 
-  "text": {
-    "content": "${content}"
-  }
-}

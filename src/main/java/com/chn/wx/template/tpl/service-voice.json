@@ -1,7 +1,0 @@
-{
-  "touser": "${touser}", 
-  "msgtype": "voice", 
-  "voice": {
-    "media_id": "${media_id}"
-  }
-}
