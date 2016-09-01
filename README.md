@@ -30,9 +30,6 @@
 	weixin.app.token=
 	
 	weixin.service.package=
-	
-	weixin.service.async=true
-	weixin.service.innerexec.size=20
 
 > **关于异步执行:** 当 weixin.service.async 值为 true 时异步执行，会忽略 Service 返回的任何内容，如有下行需调用客服接口，可以缓解压力过大导致的“微信号暂时不能提供服务”等问题。
     
@@ -67,6 +64,8 @@
 > **注意：**仅同步执行时该返回有效
 
 ## 主动调用 ##
+
+所有实例获取可以通过 `@Autowired`，也可以通过 `FactoryUtils.getInstance()`
 
 - `com.chn.wx.api.GroupManager` 分组管理
 - `com.chn.wx.api.MaterialManager` 素材管理
