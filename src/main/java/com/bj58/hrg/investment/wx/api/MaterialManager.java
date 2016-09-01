@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.bj58.hrg.investment.common.HttpUtils;
 import com.bj58.hrg.investment.common.StringTemplate;
 import com.bj58.hrg.investment.wx.annotation.Autowired;
-import com.bj58.hrg.investment.wx.annotation.Service;
+import com.bj58.hrg.investment.wx.annotation.Singleton;
 import com.bj58.hrg.investment.wx.enums.MessageType;
 import com.bj58.hrg.investment.wx.vo.request.MaterialDeleteRequest;
 import com.bj58.hrg.investment.wx.vo.request.MaterialGetRequest;
@@ -22,7 +22,7 @@ import com.bj58.hrg.investment.wx.vo.result.MaterialUploadResult;
  * @description 
  * @version v1.0
  */
-@Service
+@Singleton
 public class MaterialManager {
 
     private static final StringTemplate postTempUrl = StringTemplate.compile(WeiXinURL.POST_TEMP);

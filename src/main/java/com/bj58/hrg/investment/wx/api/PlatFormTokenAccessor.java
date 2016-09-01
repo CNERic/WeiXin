@@ -3,7 +3,7 @@ package com.bj58.hrg.investment.wx.api;
 import com.alibaba.fastjson.JSON;
 import com.bj58.hrg.investment.common.HttpUtils;
 import com.bj58.hrg.investment.wx.annotation.Autowired;
-import com.bj58.hrg.investment.wx.annotation.Service;
+import com.bj58.hrg.investment.wx.annotation.Singleton;
 import com.bj58.hrg.investment.wx.clust.Synchronizer;
 import com.bj58.hrg.investment.wx.dto.App;
 import com.bj58.hrg.investment.wx.vo.request.PlatformGetAccessToken;
@@ -16,7 +16,7 @@ import com.bj58.hrg.investment.wx.vo.result.PlatFormAccessTokenResult;
  * @description 
  * @version v1.0
  */
-@Service
+@Singleton
 public class PlatFormTokenAccessor {
     
     private static final String platformTokenUrl = WeiXinURL.PLATFORM_GET_ACCESSTOKEN;

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import com.bj58.hrg.investment.wx.annotation.Singleton;
 import com.bj58.hrg.investment.wx.ioc.SingletonFactoryBean;
 
 @SuppressWarnings("unchecked")
@@ -21,6 +22,11 @@ public class BeanFactory implements Iterable<Entry<String, FactoryBean<?>>> {
         if(result == null) 
             throw new RuntimeException("未定义的 Bean：" + name);
         return result;
+    }
+    
+    public boolean exists(String name) {
+        
+        return map.get(name) != null;
     }
     
     public Iterator<Entry<String, FactoryBean<?>>> iterator() {
@@ -61,7 +67,11 @@ public class BeanFactory implements Iterable<Entry<String, FactoryBean<?>>> {
     
     private <T> ProtoTypeFactoryBean<T> fromClass(Class<?> clazz) {
         
-        ProtoTypeFactoryBean<T> result = new ProtoTypeFactoryBean<T>(this);
+        ProtoTypeFactoryBean<T> result = null;
+        if(clazz.getAnnotation(Singleton.class) == null)
+            result = new ProtoTypeFactoryBean<T>(this);
+        else
+            result = new SingletonFactoryBean<T>(this);
         result.setType(clazz);
         return result;
     }

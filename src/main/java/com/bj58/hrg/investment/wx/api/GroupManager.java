@@ -9,7 +9,7 @@ import com.alibaba.fastjson.JSON;
 import com.bj58.hrg.investment.common.HttpUtils;
 import com.bj58.hrg.investment.common.StringTemplate;
 import com.bj58.hrg.investment.wx.annotation.Autowired;
-import com.bj58.hrg.investment.wx.annotation.Service;
+import com.bj58.hrg.investment.wx.annotation.Singleton;
 import com.bj58.hrg.investment.wx.vo.request.GroupCreateRequest;
 import com.bj58.hrg.investment.wx.vo.request.GroupUpdateRequest;
 import com.bj58.hrg.investment.wx.vo.request.GroupUserQueryRequest;
@@ -24,7 +24,7 @@ import com.bj58.hrg.investment.wx.vo.result.UserGroupQueryResult;
  * @author lzxz1234
  * @version v1.0
  */
-@Service
+@Singleton
 public class GroupManager {
 
     private static final StringTemplate createGroupUrl = compile(WeiXinURL.CREATE_GROUP);

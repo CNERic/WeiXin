@@ -10,9 +10,9 @@ import java.util.Map;
 import com.bj58.hrg.investment.common.HttpUtils;
 import com.bj58.hrg.investment.common.StringTemplate;
 import com.bj58.hrg.investment.wx.annotation.Autowired;
-import com.bj58.hrg.investment.wx.annotation.Service;
+import com.bj58.hrg.investment.wx.annotation.Singleton;
 
-@Service
+@Singleton
 public class UrlTransformer {
 
     private static final StringTemplate urlTransformUrl = compile(WeiXinURL.SHORT_URL);

@@ -9,16 +9,16 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.bj58.hrg.investment.common.Lang;
 import com.bj58.hrg.investment.common.StringUtils;
 import com.bj58.hrg.investment.wx.annotation.Node;
+import com.bj58.hrg.investment.wx.clust.JVMSynchronizer;
 import com.bj58.hrg.investment.wx.dto.App;
 import com.bj58.hrg.investment.wx.dto.Context;
 import com.bj58.hrg.investment.wx.ioc.core.BeanFactory;
 import com.bj58.hrg.investment.wx.ioc.core.FactoryBean;
 import com.bj58.hrg.investment.wx.ioc.provider.AnnotationProvider;
-import com.bj58.hrg.investment.wx.ioc.provider.JsonIocProvider;
 import com.bj58.hrg.investment.wx.listener.ThreadsMode;
+import com.bj58.hrg.investment.wx.listener.impl.process.SyncThreadMode;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"javax.crypto.*", "org.apache.log4j.*"})
@@ -82,12 +82,22 @@ public abstract class ServiceTest {
         factory.regist(BeanFactory.class.getName(), factory);
         new AnnotationProvider<Node>("com.bj58.hrg.investment.wx.listener", Node.class).registTo(factory);
         new AnnotationProvider<Node>(App.getConfig("weixin.service.package"), Node.class).registTo(factory);
-        new JsonIocProvider(new String(Lang.loadFromClassPath("/weixin.js"))).registTo(factory);
         
+        this.registIfNotExists(factory, "lock", JVMSynchronizer.class, true, "");
+        this.registIfNotExists(factory, "root", SyncThreadMode.class, true, "init");
         factory.replace(clazz.getSuperclass().getName(), instance);
         FactoryBean<ThreadsMode> factoryBean = factory.get("root");
         handler = factoryBean.get();
         return instance;
     }
     
+    private void registIfNotExists(BeanFactory factory, String name, Class<?> clazz, boolean singleton, String init) {
+        
+        if(factory.exists(name)) return;
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("type", clazz.getName());
+        params.put("singleton", singleton);
+        params.put("init", init);
+        factory.regist(name, params);
+    }
 }

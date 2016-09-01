@@ -11,7 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.bj58.hrg.investment.common.HttpUtils;
 import com.bj58.hrg.investment.common.StringTemplate;
 import com.bj58.hrg.investment.wx.annotation.Autowired;
-import com.bj58.hrg.investment.wx.annotation.Service;
+import com.bj58.hrg.investment.wx.annotation.Singleton;
 import com.bj58.hrg.investment.wx.clust.Synchronizer;
 import com.bj58.hrg.investment.wx.dto.App;
 import com.bj58.hrg.investment.wx.vo.request.PlatformGetAuthInfoRequest;
@@ -34,7 +34,7 @@ import com.bj58.hrg.investment.wx.vo.result.PlatFormSetAuthorizerOptionResult;
  * @description 
  * @version v1.0
  */
-@Service
+@Singleton
 public class PlatFormManager {
 
     private static Logger log = Logger.getLogger(PlatFormManager.class);
