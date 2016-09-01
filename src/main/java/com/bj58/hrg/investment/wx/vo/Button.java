@@ -15,6 +15,7 @@ public class Button {
     @JSONField(name="name") private String name;
     @JSONField(name="key") private String key;
     @JSONField(name="url") private String url;
+    @JSONField(name="media_id") private String mediaId;
     @JSONField(name="sub_button") private Button[] subButton;
     
     public String getType() {
@@ -49,6 +50,12 @@ public class Button {
     }
     public void setSubButton(Button[] subButton) {
         this.subButton = subButton;
+    }
+    public String getMediaId() {
+        return mediaId;
+    }
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
     }
     
 }

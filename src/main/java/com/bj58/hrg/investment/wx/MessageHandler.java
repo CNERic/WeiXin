@@ -11,6 +11,7 @@ import com.bj58.hrg.investment.wx.annotation.Singleton;
 import com.bj58.hrg.investment.wx.clust.JVMSynchronizer;
 import com.bj58.hrg.investment.wx.dto.App;
 import com.bj58.hrg.investment.wx.dto.Context;
+import com.bj58.hrg.investment.wx.ioc.FactoryUtils;
 import com.bj58.hrg.investment.wx.ioc.core.BeanFactory;
 import com.bj58.hrg.investment.wx.ioc.core.FactoryBean;
 import com.bj58.hrg.investment.wx.ioc.provider.AnnotationProvider;
@@ -51,6 +52,7 @@ public class MessageHandler {
         this.registIfNotExists("root", SyncThreadMode.class, true, "init");
         FactoryBean<ThreadsMode> factoryBean = factory.get("root");
         proxy = factoryBean.get();
+        FactoryUtils.setFactory(factory);
     }
     
     private void initBase() throws Exception {
