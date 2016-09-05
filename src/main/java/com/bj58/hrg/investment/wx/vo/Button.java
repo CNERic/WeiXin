@@ -1,5 +1,7 @@
 package com.bj58.hrg.investment.wx.vo;
 
+import java.io.Serializable;
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.bj58.hrg.investment.wx.enums.ButtonType;
 
@@ -9,8 +11,10 @@ import com.bj58.hrg.investment.wx.enums.ButtonType;
  * @description 
  * @version v1.0
  */
-public class Button {
+public class Button implements Serializable {
 
+    private static final long serialVersionUID = 6406149723838730985L;
+    
     @JSONField(name="type") private String type;
     @JSONField(name="name") private String name;
     @JSONField(name="key") private String key;

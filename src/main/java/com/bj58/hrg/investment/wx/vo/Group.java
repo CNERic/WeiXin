@@ -1,5 +1,7 @@
 package com.bj58.hrg.investment.wx.vo;
 
+import java.io.Serializable;
+
 import com.alibaba.fastjson.annotation.JSONField;
 
 /**
@@ -8,8 +10,10 @@ import com.alibaba.fastjson.annotation.JSONField;
  * @description 
  * @version v1.0
  */
-public class Group {
+public class Group implements Serializable {
 
+    private static final long serialVersionUID = -4805435746290456661L;
+    
     @JSONField(name="id") private String id;
     @JSONField(name="name") private String name;
     @JSONField(name="count") private Integer count;

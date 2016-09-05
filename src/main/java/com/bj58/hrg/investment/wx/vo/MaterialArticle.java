@@ -1,9 +1,13 @@
 package com.bj58.hrg.investment.wx.vo;
 
+import java.io.Serializable;
+
 import com.alibaba.fastjson.annotation.JSONField;
 
-public class MaterialArticle {
+public class MaterialArticle implements Serializable {
 
+    private static final long serialVersionUID = -6214979285289305376L;
+    
     /**
      * 标题
      */
