@@ -1,16 +1,17 @@
 package com.bj58.hrg.investment.common;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class HttpUtils {
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
     private static final int TIME_OUT = 3000;
     
     public static String read(HttpServletRequest req) throws IOException {
@@ -143,62 +143,92 @@ public class HttpUtils {
 
     public static String post(String url, Map<String, String> params, Map<String, byte[]> files) {
 
-        String BOUNDARY = UUID.randomUUID().toString();
-        String MULTIPART_FROM_DATA = "multipart/form-data";
-
-        HttpURLConnection conn = null;
-        OutputStream os = null;
-        InputStream is = null;
         try {
-            URL uri = new URL(url);
-            conn = (HttpURLConnection) uri.openConnection();
-            conn.setReadTimeout(TIME_OUT);
-            conn.setConnectTimeout(TIME_OUT);
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setUseCaches(false);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", MULTIPART_FROM_DATA + ";boundary=" + BOUNDARY);
-    
-            os=new BufferedOutputStream(conn.getOutputStream());
-            if(params != null && params.size() > 0)
-                for (Map.Entry<String, String> entry : params.entrySet()) {
-                    os.write("--".getBytes(UTF8));
-                    os.write(BOUNDARY.getBytes(UTF8));
-                    os.write("\r\nContent-Disposition: form-data; name=\"".getBytes(UTF8));
-                    os.write(entry.getKey().getBytes(UTF8));
-                    os.write("\"\r\n".getBytes(UTF8));
-                    os.write("Content-Type: text/plain; charset=UTF-8\r\n".getBytes(UTF8));
-                    os.write("Content-Transfer-Encoding: 8bit\r\n\r\n".getBytes(UTF8));
-                    os.write(entry.getValue().getBytes("UTF-8"));
-                    os.write("\r\n".getBytes(UTF8));
-                }
-    
-            if (files != null && files.size() > 0)
-                for (Map.Entry<String, byte[]> file : files.entrySet()) {
-                    os.write("--".getBytes(UTF8));
-                    os.write(BOUNDARY.getBytes(UTF8));
-                    
-                    os.write("\r\nContent-Disposition: form-data; name=\"".getBytes(UTF8));
-                    os.write(file.getKey().getBytes(UTF8));
-                    os.write("\"; filename=\"".getBytes(UTF8));
-                    os.write(file.getKey().getBytes(UTF8));
-                    os.write("\"\r\n".getBytes(UTF8));
-                    os.write("Content-Type: application/octet-stream; charset=UTF-8\r\n\r\n".getBytes(UTF8));
-                    os.write(file.getValue());
-                    os.write("\r\n".getBytes(UTF8));
-                }
-            os.write("--".getBytes(UTF8));
-            os.write(BOUNDARY.getBytes(UTF8));
-            os.write("--\r\n".getBytes(UTF8));
-            
-            IOUtils.closeQuietly(os);
-            is = conn.getInputStream();
-            return IOUtils.toString(is, "UTF-8");
+            MultipartUtility req = new MultipartUtility(url, "UTF-8");
+            if(params != null)
+                for(Map.Entry<String, String> each : params.entrySet()) 
+                    req.addFormField(each.getKey(), each.getValue());
+            if(files != null)
+                for(Map.Entry<String, byte[]> each : files.entrySet())
+                    req.addFilePart(each.getKey(), each.getValue());
+            return req.finish();
         } catch (Exception e) {
-            throw new RuntimeException("请求错误！", e);
-        } finally {
-            IOUtils.closeQuietly(is);
+            throw new RuntimeException("请求失败", e);
+        }
+    }
+
+    public static class MultipartUtility {
+        
+        private final String boundary;
+        private static final String LINE_FEED = "\r\n";
+        private HttpURLConnection httpConn;
+        private String charset;
+        private OutputStream outputStream;
+        private PrintWriter writer;
+     
+        public MultipartUtility(String requestURL, String charset) throws Exception {
+            
+            this.charset = charset;
+            boundary = "===" + System.currentTimeMillis() + "===";
+             
+            URL url = new URL(requestURL);
+            httpConn = (HttpURLConnection) url.openConnection();
+            httpConn.setUseCaches(false);
+            httpConn.setDoOutput(true);
+            httpConn.setDoInput(true);
+            httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
+            outputStream = httpConn.getOutputStream();
+            writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+        }
+     
+        public void addFormField(String name, String value) {
+            writer.append("--" + boundary).append(LINE_FEED);
+            writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
+            writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
+            writer.append(LINE_FEED);
+            writer.append(value).append(LINE_FEED);
+            writer.flush();
+        }
+     
+        public void addFilePart(String fieldName, byte[] uploadFile) throws IOException {
+            
+            String contentType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(uploadFile));
+            String suffix = contentType.contains("/") ? contentType.split("/")[1] : contentType;
+            writer.append("--" + boundary).append(LINE_FEED);
+            writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"uploadfile.").append(suffix).append("\"").append(LINE_FEED);
+            writer.append("Content-Type: " + contentType).append(LINE_FEED);
+            writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
+            writer.append(LINE_FEED);
+            writer.flush();
+     
+            outputStream.write(uploadFile);
+            outputStream.flush();
+             
+            writer.append(LINE_FEED);
+            writer.flush();     
+        }
+     
+        public void addHeaderField(String name, String value) {
+            writer.append(name + ": " + value).append(LINE_FEED);
+            writer.flush();
+        }
+         
+        public String finish() throws IOException {
+     
+            writer.append(LINE_FEED).flush();
+            writer.append("--" + boundary + "--").append(LINE_FEED);
+            writer.close();
+     
+            int status = httpConn.getResponseCode();
+            if (status == HttpURLConnection.HTTP_OK) {
+                String result = IOUtils.toString(httpConn.getInputStream(), "UTF-8");
+                httpConn.disconnect();
+                return result;
+            } else {
+                throw new IOException("Server returned non-OK status: " + status);
+            }
+     
         }
     }
 
