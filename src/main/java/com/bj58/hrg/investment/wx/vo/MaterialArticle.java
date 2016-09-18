@@ -33,10 +33,20 @@ public class MaterialArticle implements Serializable {
      */
     @JSONField(name="content") private String content;
     /**
+     * 图文页的URL
+     */
+    @JSONField(name="url") private String url;
+    /**
      * 图文消息的原文地址，即点击“阅读原文”后的URL
      */
     @JSONField(name="content_source_url") private String contentSourceUrl;
     
+    public String getUrl() {
+        return url;
+    }
+    public void setUrl(String url) {
+        this.url = url;
+    }
     public String getTitle() {
         return title;
     }
