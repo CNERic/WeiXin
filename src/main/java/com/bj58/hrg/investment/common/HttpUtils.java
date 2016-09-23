@@ -196,7 +196,8 @@ public class HttpUtils {
             String contentType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(uploadFile));
             String suffix = contentType.contains("/") ? contentType.split("/")[1] : contentType;
             writer.append("--" + boundary).append(LINE_FEED);
-            writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"uploadfile.").append(suffix).append("\"").append(LINE_FEED);
+            writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"");
+            writer.append(String.valueOf(System.currentTimeMillis())).append(".").append(suffix).append("\"").append(LINE_FEED);
             writer.append("Content-Type: " + contentType).append(LINE_FEED);
             writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
             writer.append(LINE_FEED);
