@@ -79,6 +79,7 @@ public class HttpUtils {
             throw new RuntimeException("请求错误！", e);
         } finally {
             IOUtils.closeQuietly(is);
+            if(conn != null) conn.disconnect();
         }
     }
     
@@ -102,6 +103,7 @@ public class HttpUtils {
             throw new RuntimeException("请求错误！", e);
         } finally {
             IOUtils.closeQuietly(is);
+            if(conn != null) conn.disconnect();
         }
     }
     
@@ -131,6 +133,7 @@ public class HttpUtils {
             throw new RuntimeException("请求错误！", e);
         } finally {
             IOUtils.closeQuietly(is);
+            if(conn != null) conn.disconnect();
         }
     }
 
