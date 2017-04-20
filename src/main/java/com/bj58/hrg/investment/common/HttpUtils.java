@@ -1,6 +1,6 @@
 package com.bj58.hrg.investment.common;
 
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -153,8 +152,8 @@ public class HttpUtils {
                     req.addFormField(each.getKey(), each.getValue());
             if(files != null)
                 for(Map.Entry<String, byte[]> each : files.entrySet())
-                    req.addFilePart(each.getKey(), each.getValue());
-            return req.finish();
+                    req.addFilePart(each.getKey(), "", each.getValue());
+            return req.send(null);
         } catch (Exception e) {
             throw new RuntimeException("请求失败", e);
         }
@@ -164,44 +163,39 @@ public class HttpUtils {
         
         private final String boundary;
         private static final String LINE_FEED = "\r\n";
-        private HttpURLConnection httpConn;
+        private String requestURL;
         private String charset;
-        private OutputStream outputStream;
+        private ByteArrayOutputStream outputStream;
         private PrintWriter writer;
      
         public MultipartUtility(String requestURL, String charset) throws Exception {
             
+            this.requestURL = requestURL;
             this.charset = charset;
-            boundary = "===" + System.currentTimeMillis() + "===";
-             
-            URL url = new URL(requestURL);
-            httpConn = (HttpURLConnection) url.openConnection();
-            httpConn.setUseCaches(false);
-            httpConn.setDoOutput(true);
-            httpConn.setDoInput(true);
-            httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-            httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
-            outputStream = httpConn.getOutputStream();
+            boundary = "qbsNZKOclzJhn5ZPAsIUihqpaEYPiv3Y";
+            outputStream = new ByteArrayOutputStream();
             writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
         }
      
         public void addFormField(String name, String value) {
+            
             writer.append("--" + boundary).append(LINE_FEED);
-            writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
-            writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
+            writer.append("Content-Disposition: form-data; name=\"").append(name).append("\"").append(LINE_FEED);
+            writer.append("Content-Type: multipart/form-data; charset=").append(charset).append(LINE_FEED);
+            writer.append("Content-Transfer-Encoding: 8bit").append(LINE_FEED);
             writer.append(LINE_FEED);
             writer.append(value).append(LINE_FEED);
             writer.flush();
         }
      
-        public void addFilePart(String fieldName, byte[] uploadFile) throws IOException {
+        public void addFilePart(String fieldName, String fileName, byte[] uploadFile) throws IOException {
             
-            String contentType = URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(uploadFile));
-            String suffix = contentType.contains("/") ? contentType.split("/")[1] : contentType;
             writer.append("--" + boundary).append(LINE_FEED);
-            writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"");
-            writer.append(String.valueOf(System.currentTimeMillis())).append(".").append(suffix).append("\"").append(LINE_FEED);
-            writer.append("Content-Type: " + contentType).append(LINE_FEED);
+            writer.append("Content-Disposition: form-data; name=\"").append(fieldName).append("\"");
+            if(!StringUtils.isEmpty(fileName))
+                writer.append("; filename=\"").append(fileName).append("\"");
+            writer.append(LINE_FEED);
+            writer.append("Content-Type: ").append("application/octet-stream").append(LINE_FEED);
             writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
             writer.append(LINE_FEED);
             writer.flush();
@@ -210,30 +204,30 @@ public class HttpUtils {
             outputStream.flush();
              
             writer.append(LINE_FEED);
-            writer.flush();     
-        }
-     
-        public void addHeaderField(String name, String value) {
-            writer.append(name + ": " + value).append(LINE_FEED);
             writer.flush();
         }
-         
-        public String finish() throws IOException {
      
-            writer.append(LINE_FEED).flush();
+        public String send(Map<String, String> headers) throws IOException {
+     
             writer.append("--" + boundary + "--").append(LINE_FEED);
             writer.close();
      
-            int status = httpConn.getResponseCode();
-            if (status == HttpURLConnection.HTTP_OK) {
-                String result = IOUtils.toString(httpConn.getInputStream(), "UTF-8");
-                httpConn.disconnect();
-                return result;
-            } else {
-                throw new IOException("Server returned non-OK status: " + status);
-            }
-     
+            URL url = new URL(requestURL);
+            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+            httpConn.setUseCaches(false);
+            httpConn.setDoOutput(true);
+            httpConn.setDoInput(true);
+            httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            if(headers != null)
+                for(Map.Entry<String, String> each : headers.entrySet())
+                    httpConn.setRequestProperty(each.getKey(), each.getValue());
+            OutputStream os = httpConn.getOutputStream();
+            os.write(outputStream.toByteArray());
+            os.flush();
+            os.close();
+            String result = IOUtils.toString(httpConn.getResponseCode() == HttpURLConnection.HTTP_OK ? httpConn.getInputStream() : httpConn.getErrorStream(), "UTF-8");
+            httpConn.disconnect();
+            return result;
         }
     }
-
 }
