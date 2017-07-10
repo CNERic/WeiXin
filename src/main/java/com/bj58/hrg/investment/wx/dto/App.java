@@ -18,6 +18,7 @@ public class App {
     static {
         try {
             cfg = Cfg.getClassPathCfg("/weixin.properties");
+            Info.reInit();
         } catch (Exception e) {
             log.warn("从 classpath 加载 weixin.properties 配置文件失败，请手动初始化 App.init()");
         }
