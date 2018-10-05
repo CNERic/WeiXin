@@ -8,56 +8,6 @@
 [[测试地址]](http://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login "测试地址") 
 [[本机公网发布]](https://ngrok.com "ngrok")
 
-## 起步 ##
-
-在 web.xml 中配置如下信息：
-
-    <servlet>
-        <servlet-name>weixin</servlet-name>
-        <servlet-class>com.chn.wx.WeiXinServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>weixin</servlet-name>
-        <url-pattern>/*</url-pattern>
-    </servlet-mapping>
-
-同时在 classpath 下的 weixin.properties 里配置各项参数：
-
-    weixin.app.id=
-	weixin.app.name=
-	weixin.app.secret=
-	weixin.app.aeskey=
-	weixin.app.token=
-	
-	weixin.service.package=
-
-> **关于异步执行:** 当 weixin.service.async 值为 true 时异步执行，会忽略 Service 返回的任何内容，如有下行需调用客服接口，可以缓解压力过大导致的“微信号暂时不能提供服务”等问题。
-    
-## 主流程 ##
-
-`com.chn.wx.listener` 中的所有实现 `Service` 接口的类会被组装成一棵流程树，目前结点如下：
-
-             GET
-    Servlet ─────> CertifyService
-       |    POST                  RAW                                 event                         CLICK
-       └─────────> EncryptRouter ─────> RawMessageRouter ────────────────────────────> EventRouter ─────────> ClickEventAdaptor
-                         | AES            ↑         |  text                                 |       LOCATION
-                         └────> AesMessageRouter    ├───────────> TextMessageAdaptor        ├───────────────> LocationEventAdaptor
-                                                    |  image                                |       SCAN
-                                                    ├───────────> ImageMessageAdaptor       ├───────────────> ScanQrCodeEventAdaptor
-                                                    |  video                                |       VIEW
-                                                    ├───────────> VideoMessageAdaptor       ├───────────────> ViewEventAdaptor
-                                                    |  voice                                |       subscribe
-                                                    ├───────────> VoiceMessageAdaptor       ├───────────────> SubscribeEventAdaptor
-                                                    |  location                             |       unsubscribe
-                                                    ├───────────> LocationMessageAdaptor    ├───────────────> UnSubscribeEventAdaptor
-                                                    |  link                                 |       component_verify_ticket
-                                                    ├───────────> LinkMessageAdaptor        ├───────────────> ComponentVerifyTicketAdaptor
-                                                    |  shortvideo                           |       unauthorized
-                                                    └───────────> ShortVideoMessageAdaptor  └───────────────>UnAuthorizedAdaptor
-
-结点与父结点的关系通过 `@Node(value = "raw", parent = EncryptRouter.class)` 指定。
-
 ## 消息返回 ##
 
 `Service` 的实现方法中返回的字符串会被写回到请求流中，需要返回消息时，调用 `com.chn.wx.template.PassiveMessage` 中的对应方法生成报文返回即可。
@@ -77,6 +27,3 @@
 - `com.chn.wx.api.UrlTransformer` 短地址服务
 - `com.chn.wx.api.UserManager` 用户管理
 
-## 语法糖 ##
-
-`Service` 实现类中被`@Param`注解标记的字段，会被注入成 `Context` 中对应的属性值，当然也可以直接通过 `Context` 读取。
