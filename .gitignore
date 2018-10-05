@@ -65,3 +65,6 @@ classes/
 /gen
 /target/
 /build/
+
+.idea
+
