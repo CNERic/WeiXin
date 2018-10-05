@@ -1,6 +1,5 @@
 package cn.lzxz1234.weixin.api.wx.listener.service.end.message;
 
-import cn.lzxz1234.tencent.weixin.wx.annotation.Param;
 import cn.lzxz1234.weixin.api.wx.dto.Context;
 import cn.lzxz1234.weixin.api.wx.listener.Service;
 import cn.lzxz1234.weixin.api.wx.vo.message.TextMessage;

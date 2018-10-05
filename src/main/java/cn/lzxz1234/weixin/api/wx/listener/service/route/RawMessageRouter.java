@@ -1,6 +1,5 @@
 package cn.lzxz1234.weixin.api.wx.listener.service.route;
 
-import cn.lzxz1234.tencent.weixin.wx.annotation.Param;
 import cn.lzxz1234.weixin.api.wx.dto.Context;
 import cn.lzxz1234.weixin.api.wx.listener.Service;
 import cn.lzxz1234.weixin.api.wx.listener.service.end.message.*;
@@ -18,8 +17,6 @@ import java.util.Iterator;
  */
 public final class RawMessageRouter extends AbstractRouter implements Service {
 
-    @Param
-    private String xmlContent;
     {
         this.put("platform", new PlatFormEventRouter());
         this.put("event", new EventRouter());
@@ -35,7 +32,7 @@ public final class RawMessageRouter extends AbstractRouter implements Service {
     @Override
     public String doService(Context context) throws Exception {
         
-        Document document = DocumentHelper.parseText(xmlContent);
+        Document document = DocumentHelper.parseText(context.getString("xmlContent"));
         Element root = document.getRootElement();
         for(Iterator<?> it = root.elementIterator(); it.hasNext();) {
             Element ele = (Element)it.next();
