@@ -2,7 +2,12 @@ package cn.lzxz1234.weixin.api.wx.listener.service.route;
 
 import cn.lzxz1234.weixin.api.wx.dto.Context;
 import cn.lzxz1234.weixin.api.wx.listener.Service;
+import cn.lzxz1234.weixin.api.wx.listener.service.end.EventListener;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @class EventRouter
@@ -13,7 +18,15 @@ import org.apache.log4j.Logger;
 public final class EventRouter extends AbstractRouter implements Service {
 
     private static Logger log = Logger.getLogger(EventRouter.class);
-    private EventListener[] eventListeners = new EventListener[0];
+    private static EventListener[] eventListeners = new EventListener[0];
+
+    public static void registEventListener(EventListener listener) {
+
+        List<EventListener> newEventListeners = new ArrayList<>();
+        newEventListeners.addAll(Arrays.asList(eventListeners));
+        newEventListeners.add(listener);
+        eventListeners = newEventListeners.toArray(new EventListener[0]);
+    }
 
     @Override
     public String doService(Context context) throws Exception {
@@ -41,40 +54,6 @@ public final class EventRouter extends AbstractRouter implements Service {
         }
         // TODO 客服消息接口下发返回
         return DEFAULT_RETURN;
-    }
-
-    public interface EventListener {
-
-        /**
-         * @param event 事件KEY值，与自定义菜单接口中KEY值对应
-         */
-        void handleClick(String from, String to, String event);
-
-        /**
-         * @param latitude 地理位置纬度
-         * @param lngtitude 地理位置经度
-         * @param precision 地理位置精度
-         */
-        void handleLocation(String from, String to, String latitude, String lngtitude, String precision);
-
-        /**
-         * @param key 事件KEY值，是一个32位无符号整数，即创建二维码时的二维码scene_id
-         * @param ticket 二维码的ticket，可用来换取二维码图片
-         */
-        void handleScan(String from, String to, String key, String ticket);
-
-        /**
-         * @param key 事件KEY值，qrscene_为前缀，后面为二维码的参数值
-         * @param ticket 二维码的ticket，可用来换取二维码图片
-         */
-        void handleSubscribe(String from, String to, String key, String ticket);
-
-        void handleUnSubscribe(String from, String to);
-
-        /**
-         * @param key 事件KEY值，设置的跳转URL
-         */
-        void handleView(String from, String to, String key);
     }
 
 }

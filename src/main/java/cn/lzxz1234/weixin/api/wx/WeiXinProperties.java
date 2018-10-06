@@ -11,7 +11,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class WeiXinProperties {
 
     private String id;
-    private String name;
     private String secret;
     private String aeskey;
     private String token;
@@ -22,14 +21,6 @@ public class WeiXinProperties {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getSecret() {

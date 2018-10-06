@@ -14,7 +14,6 @@ public class App {
          * id: appId
          */
         public static String id;
-        public static String name;
         public static String secret;
         public static String aesKey;
         public static String token;

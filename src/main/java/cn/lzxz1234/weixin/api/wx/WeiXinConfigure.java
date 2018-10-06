@@ -4,9 +4,12 @@ import cn.lzxz1234.weixin.api.wx.api.*;
 import cn.lzxz1234.weixin.api.wx.clust.JVMSynchronizer;
 import cn.lzxz1234.weixin.api.wx.clust.Synchronizer;
 import cn.lzxz1234.weixin.api.wx.dto.App;
+import cn.lzxz1234.weixin.api.wx.listener.service.end.MessageListener;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -22,6 +25,7 @@ import javax.annotation.PostConstruct;
  * @class WeiXinConfigure
  */
 @Configuration
+@ConditionalOnClass(WeiXinHandler.class)
 @EnableConfigurationProperties(WeiXinProperties.class)
 public class WeiXinConfigure implements ApplicationContextAware {
 
@@ -41,6 +45,7 @@ public class WeiXinConfigure implements ApplicationContextAware {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public Synchronizer synchronizer() {
 
         return new JVMSynchronizer();
@@ -51,6 +56,15 @@ public class WeiXinConfigure implements ApplicationContextAware {
     public TokenAccessor tokenAccessor() {
 
         return new TokenAccessor(applicationContext.getBean(Synchronizer.class));
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "cn.lzxz1234.weixin.platform ", value = "enabled", havingValue = "true")
+    public PlatFormTokenAccessor platFormTokenAccessor() {
+
+        return applicationContext.getBeansOfType(Synchronizer.class).size() == 0 ?
+                new PlatFormTokenAccessor(new JVMSynchronizer()) :
+                new PlatFormTokenAccessor(applicationContext.getBean(Synchronizer.class));
     }
 
     @Bean
@@ -96,15 +110,6 @@ public class WeiXinConfigure implements ApplicationContextAware {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "cn.lzxz1234.weixin.platform ", value = "enabled", havingValue = "true")
-    public PlatFormTokenAccessor platFormTokenAccessor() {
-
-        return applicationContext.getBeansOfType(Synchronizer.class).size() == 0 ?
-                new PlatFormTokenAccessor(new JVMSynchronizer()) :
-                new PlatFormTokenAccessor(applicationContext.getBean(Synchronizer.class));
-    }
-
-    @Bean
     @ConditionalOnBean(PlatFormTokenAccessor.class)
     public PlatFormManager platFormManager() {
 
@@ -124,7 +129,6 @@ public class WeiXinConfigure implements ApplicationContextAware {
 
         App.Info.aesKey = properties.getAeskey();
         App.Info.id = properties.getId();
-        App.Info.name = properties.getName();
         App.Info.secret = properties.getSecret();
         App.Info.token = properties.getToken();
     }

@@ -2,12 +2,15 @@ package cn.lzxz1234.weixin.api.wx.listener.service.route;
 
 import cn.lzxz1234.weixin.api.wx.dto.Context;
 import cn.lzxz1234.weixin.api.wx.listener.Service;
-import cn.lzxz1234.weixin.api.wx.listener.service.end.message.*;
+import cn.lzxz1234.weixin.api.wx.listener.service.end.MessageListener;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @class MessageService
@@ -17,17 +20,19 @@ import java.util.Iterator;
  */
 public final class RawMessageRouter extends AbstractRouter implements Service {
 
+    private static MessageListener[] listeners = new MessageListener[0];
+
+    public static void registEventListener(MessageListener listener) {
+
+        List<MessageListener> tmpListeners = new ArrayList<>();
+        tmpListeners.addAll(Arrays.asList(listeners));
+        tmpListeners.add(listener);
+        listeners = tmpListeners.toArray(new MessageListener[0]);
+    }
+
     {
         this.put("platform", new PlatFormEventRouter());
         this.put("event", new EventRouter());
-
-        this.put("text", new TextMessageService());
-        this.put("image", new ImageMessageService());
-        this.put("link", new LinkMessageService());
-        this.put("location", new LocationMessageService());
-        this.put("shortvideo", new ShortVideoMessageService());
-        this.put("video", new VideoMessageService());
-        this.put("voice", new VoiceMessageService());
     }
     @Override
     public String doService(Context context) throws Exception {
@@ -44,7 +49,37 @@ public final class RawMessageRouter extends AbstractRouter implements Service {
             return this.doNext("platform", context);
         } else {
             String routeKey = context.getAttribute(String.class, "MsgType");
-            return this.doNext(routeKey, context);
+            for(MessageListener listener : listeners) {
+                try {
+                    if (routeKey.equals("text")) {
+                        listener.handleTextMessage(context.getString("FromUserName"), context.getString("ToUserName"),
+                                context.getString("Content"));
+                    } else if(routeKey.equals("image")) {
+                        listener.handleImageMessage(context.getString("FromUserName"), context.getString("ToUserName"),
+                                context.getString("MediaId"), context.getString("PicUrl"), context.getString("picLocation"));
+                    } else if(routeKey.equals("link")) {
+                        listener.handleLinkMessage(context.getString("FromUserName"), context.getString("ToUserName"),
+                                context.getString("Title"), context.getString("Description"), context.getString("Url"));
+                    } else if(routeKey.equals("location")) {
+                        listener.handleLocationMessage(context.getString("FromUserName"), context.getString("ToUserName"),
+                                context.getString("Location_X"), context.getString("Location_Y"), context.getString("Scale"), context.getString("Label"));
+                    } else if(routeKey.equals("shortvideo")) {
+                        listener.handleShortVideo(context.getString("FromUserName"), context.getString("ToUserName"),
+                                context.getString("MediaId"), context.getString("ThumbMediaId"));
+                    } else if(routeKey.equals("video")) {
+                        listener.handleVideo(context.getString("FromUserName"), context.getString("ToUserName"),
+                                context.getString("MediaId"), context.getString("ThumbMediaId"));
+                    } else if(routeKey.equals("voice")) {
+                        listener.handleVoice(context.getString("FromUserName"), context.getString("ToUserName"),
+                                context.getString("MediaId"), context.getString("Format"), context.getString("voiceLocation"));
+                    } else {
+                        log.warn("不支持的消息类型: " + routeKey);
+                    }
+                } catch (Exception e) {
+                    log.error("通知失败", e);
+                }
+            }
+            return DEFAULT_RETURN;
         }
     }
 

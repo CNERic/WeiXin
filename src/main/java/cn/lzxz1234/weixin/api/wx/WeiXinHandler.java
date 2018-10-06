@@ -4,6 +4,10 @@ import cn.lzxz1234.weixin.api.common.HttpUtils;
 import cn.lzxz1234.weixin.api.common.IOUtils;
 import cn.lzxz1234.weixin.api.common.StringUtils;
 import cn.lzxz1234.weixin.api.wx.dto.Context;
+import cn.lzxz1234.weixin.api.wx.listener.service.end.EventListener;
+import cn.lzxz1234.weixin.api.wx.listener.service.end.MessageListener;
+import cn.lzxz1234.weixin.api.wx.listener.service.end.message.AbstractMessageService;
+import cn.lzxz1234.weixin.api.wx.listener.service.route.EventRouter;
 import cn.lzxz1234.weixin.api.wx.listener.service.route.MethodRouter;
 import org.apache.log4j.Logger;
 
@@ -41,6 +45,16 @@ public class WeiXinHandler {
         } finally {
             IOUtils.closeQuietly(os);
         }
+    }
+
+    public void registEventListener(EventListener listener) {
+
+        EventRouter.registEventListener(listener);
+    }
+
+    public void registMsgListener(MessageListener listener) {
+
+        AbstractMessageService.registEventListener(listener);
     }
 
 }
