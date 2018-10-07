@@ -6,9 +6,9 @@ import cn.lzxz1234.weixin.api.common.StringUtils;
 import cn.lzxz1234.weixin.api.wx.dto.Context;
 import cn.lzxz1234.weixin.api.wx.listener.service.end.EventListener;
 import cn.lzxz1234.weixin.api.wx.listener.service.end.MessageListener;
-import cn.lzxz1234.weixin.api.wx.listener.service.end.message.AbstractMessageService;
 import cn.lzxz1234.weixin.api.wx.listener.service.route.EventRouter;
 import cn.lzxz1234.weixin.api.wx.listener.service.route.MethodRouter;
+import cn.lzxz1234.weixin.api.wx.listener.service.route.RawMessageRouter;
 import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
@@ -54,7 +54,7 @@ public class WeiXinHandler {
 
     public void registMsgListener(MessageListener listener) {
 
-        AbstractMessageService.registEventListener(listener);
+        RawMessageRouter.registEventListener(listener);
     }
 
 }
